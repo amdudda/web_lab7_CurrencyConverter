@@ -1,0 +1,18 @@
+body {
+	background-color: aliceblue;
+	color: #CC9900;
+	font-family: sans-serif;
+}
+
+div {
+	padding: 15px;
+}
+
+input {
+	margin: 5px;
+}
+
+.btn {
+	color: aliceblue;
+	background-color: #CC9900;
+}

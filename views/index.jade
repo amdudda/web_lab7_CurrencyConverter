@@ -1,0 +1,15 @@
+extends base
+
+block content
+
+		h1 Currency Converter
+
+		form(action="/convert", method="get")
+			div(class=currency_form)
+				span.label Amount in dollars
+				input(type="text", name="dollaramount")
+				select(name="tocurrency")
+					option(value="Euro") Euros
+					option(value="Pounds") Pounds
+			div(class=button)
+				input(type="submit", value="Convert", class="btn")

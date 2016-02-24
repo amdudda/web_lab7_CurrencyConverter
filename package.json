@@ -1,0 +1,12 @@
+{
+	"name":"currency",
+	"version":"0.0.0",
+	"dependencies":{
+		"express":"^4.13.4",
+		"jade":"^1.11.0"
+	},
+
+	"description":"Simple currency converter",
+	"main":"currency_app.js",
+	"author":"A. M. Dudda"
+}
