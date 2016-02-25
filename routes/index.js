@@ -24,7 +24,7 @@ function convert(req, res) {
 	var convertTo = req.query.tocurrency;
 	var symbol;
 	if (convertTo == "Euros") symbol = "€"; 
-		else if (convertTo == "Dollars") symbol = "$";
+		else if (convertTo == "Dollars") symbol = "US$";
 		else symbol = "GB₤"; 
 
 	// log the conversion
@@ -37,13 +37,13 @@ function convert(req, res) {
 		"Pounds": { "Dollars" : 1.40, "Pounds" : 1.0, "Euros" : 1.27 }
 		}  // exchange rates approximate; googled these on 2016.02.25
 	var conversionRate = conversions[convertFrom][convertTo];
-//	console.log(conversionRate);
+	//	console.log(conversionRate);
 
+	// do the math, but also round the calculation to two decimal places.
 	var convertedVal = conversionRate * units;
 	var convertedVal = Math.round(convertedVal*100) / 100;
 
 	// send the results to the browser.
-	//res.send("US$" + dollars + " converts to " + symbol + convertedVal);
 	res.render('result', {dollars:units, symbol:symbol, converted:convertedVal});
 };
 
