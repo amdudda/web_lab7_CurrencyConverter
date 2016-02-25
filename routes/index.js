@@ -19,25 +19,32 @@ function convert(req, res) {
 		body.query attribute; properties same as names in form.
 	 */
 
-	var dollars = req.query.dollaramount;
+	var units = req.query.dollaramount;
+	var convertFrom = req.query.fromcurrency;
 	var convertTo = req.query.tocurrency;
 	var symbol;
-	if (convertTo == "Euro") symbol = "€"; else symbol = "GB₤"; 
+	if (convertTo == "Euros") symbol = "€"; 
+		else if (convertTo == "Dollars") symbol = "$";
+		else symbol = "GB₤"; 
 
+	// log the conversion
+	console.log("query was: convert " + convertFrom + " " + units + " to " + convertTo + " (" + symbol + ")");
 
-	//res.send("query was: convert US$" + dollars + " to " + convertTo + "(" + symbol + ")");
-	console.log("query was: convert US$" + dollars + " to " + convertTo + "(" + symbol + ")");
+	// our conversion rates
+	var conversions = {
+		"Dollars": { "Dollars" : 1.00, "Pounds" : 0.72, "Euros" : 0.91 },
+		"Euros": { "Dollars" : 1.10, "Pounds" : 0.79, "Euros" : 1.00 },
+		"Pounds": { "Dollars" : 1.40, "Pounds" : 1.0, "Euros" : 1.27 }
+		}  // exchange rates approximate; googled these on 2016.02.25
+	var conversionRate = conversions[convertFrom][convertTo];
+//	console.log(conversionRate);
 
-	// our conversion rates - TODO what's wrong with this?
-	var conversions = { "Pounds" : 1.6, "Euro" : 1.1 };
-
-	var conversionRate = conversions[convertTo];
-
-	var convertedVal = conversionRate * dollars;
+	var convertedVal = conversionRate * units;
+	var convertedVal = Math.round(convertedVal*100) / 100;
 
 	// send the results to the browser.
 	//res.send("US$" + dollars + " converts to " + symbol + convertedVal);
-	res.render('result', {dollars:dollars, symbol:symbol, converted:convertedVal});
+	res.render('result', {dollars:units, symbol:symbol, converted:convertedVal});
 };
 
 module.exports = router;
