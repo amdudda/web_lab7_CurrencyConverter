@@ -23,13 +23,21 @@ function convert(req, res) {
 	var units = req.query.dollaramount;
 	var convertFrom = req.query.fromcurrency;
 	var convertTo = req.query.tocurrency;
-	var symbol;
-	if (convertTo == "EUR") symbol = "€"; 
-		else if (convertTo == "USD") symbol = "US$";
-		else symbol = "GB₤"; 
+	var toSymbol="";
+	var fromSymbol="";
+	// pre-staging for introducing other currencies
+	if (convertTo == "EUR") toSymbol = "€ ";
+		else if (convertTo == "USD") toSymbol = "US$";
+		else if (convertTo == "GBP") toSymbol = "GB₤"; 
+		else toSymbol = convertTo;
+	if (convertFrom == "EUR") fromSymbol = "€ "; 
+		else if (convertFrom == "USD") fromSymbol = "US$";
+		else if (convertFrom == "GBP") fromSymbol = "GB₤"; 
+		else fromSymbol = convertFrom;
+	console.log("from " + fromSymbol + " to " + toSymbol);
 
 	// log the conversion
-	console.log("query was: convert " + convertFrom + " " + units + " to " + convertTo + " (" + symbol + ")");
+	console.log("query was: convert " + fromSymbol + " " + units + " to " + convertTo + " (" + toSymbol + ")");
 
 	// fetch my api key
 	var apikey = process.env.CURRENCYLAYER_API_KEY;
@@ -43,18 +51,29 @@ function convert(req, res) {
 	var api_url = "http://apilayer.net/api/live" // ?access_key=" + apikey +  			"&currencies=USD,EUR,GBP&format=1";  // format 1 specifies JSON
 	var api_params = {'access_key': apikey, 'currencies':'USD,EUR,GBP', format:1 }
 	// TODO: the api has a call that lets you get all available currencies.
-	// this could be used to generate massive drop-down boxes.
+	// this could be used to generate massive drop-down boxes.  
 	var api_or_hard = ""	
 
 	// our conversion rates generated via api call
 	request_mod( {uri: api_url, qs: api_params}, function(error,clresponse,body) {
 		if (!error) {
 			var api_conversions = JSON.parse(body); // how to fetch this??
-			console.log(api_conversions.quotes);
-			var target = api_conversions["quotes"]["USD" + convertTo];
-			var base = api_conversions["quotes"]["USD" + convertFrom];
-			var convertedVal = units * (target/base);
-			api_or_hard = "used the API"
+			// check for data retrieval success
+			if (api_conversions.success) {
+				console.log(api_conversions.quotes);
+				var target = api_conversions["quotes"]["USD" + convertTo];
+				var base = api_conversions["quotes"]["USD" + convertFrom];
+				var convertedVal = units * (target/base);
+				api_or_hard = "used the API"
+			}
+			else  {
+				// process error info in JSON data
+				var errcode = api_conversions.error.code;
+				var errtype = api_conversions.error.type;
+				var errtext = api_conversions.error.info;
+				// and pass this to an error page
+				res.render('error',{errcode:errcode,errtype:errtype,errtext:errtext});
+			}
 		}
 		else {
 			/* use original hard-coded values */
@@ -68,15 +87,17 @@ function convert(req, res) {
 			var conversionRate = conversions[convertFrom][convertTo];
 			//	console.log(conversionRate);
 
-			// do the math, but also round the calculation to two decimal places.
+			// do the math
 			var convertedVal = conversionRate * units;
 
 			api_or_hard = "used hard coded values"
 		} // end if-else
+
+		// round the calculation to two decimal places.
 		var convertedVal = Math.round(convertedVal*100) / 100;
 
 		// send the results to the browser.
-		res.render('result', {dollars:units, symbol:symbol, converted:convertedVal, api_or_hard:api_or_hard});
+		res.render('result', {fromSymbol:fromSymbol, dollars:units, toSymbol:toSymbol, converted:convertedVal, api_or_hard:api_or_hard});
 	}); // end callback function and close request
 };
 
