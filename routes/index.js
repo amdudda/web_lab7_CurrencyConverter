@@ -52,18 +52,19 @@ function convert(req, res) {
 	var api_params = {'access_key': apikey, 'currencies':'USD,EUR,GBP', format:1 }
 	// TODO: the api has a call that lets you get all available currencies.
 	// this could be used to generate massive drop-down boxes.  
-	var api_or_hard = ""	
+	var api_or_hard = "";
+	var convertedVal = 0;
 
 	// our conversion rates generated via api call
 	request_mod( {uri: api_url, qs: api_params}, function(error,clresponse,body) {
-		if (!error) {
+		if (!error && clresponse.statusCode == 200) {
 			var api_conversions = JSON.parse(body); // how to fetch this??
 			// check for data retrieval success
 			if (api_conversions.success) {
 				console.log(api_conversions.quotes);
 				var target = api_conversions["quotes"]["USD" + convertTo];
 				var base = api_conversions["quotes"]["USD" + convertFrom];
-				var convertedVal = units * (target/base);
+				convertedVal = units * (target/base);
 				api_or_hard = "used the API"
 			}
 			else  {
@@ -73,10 +74,19 @@ function convert(req, res) {
 				var errtext = api_conversions.error.info;
 				// and pass this to an error page
 				res.render('error',{errcode:errcode,errtype:errtype,errtext:errtext});
-			}
+			} // end if-else for processing JSON data
 		}
 		else {
-			/* use original hard-coded values */
+			// TODO: fall back in a more appropriate fashion - tell the user something
+			// went wrong in the HTML request.
+			if (clresponse) var errcode = clresponse.statusCode;
+				else var errcode = "Unable to retrieve error code";
+			var errtype = "HTML error";
+			var errtext = "Something happened in communications between your computer and the server on the Internet.  You can do a web search on the error code above to find more details about the error.";
+			// and pass this to an error page
+			res.render('error',{errcode:errcode,errtype:errtype,errtext:errtext});
+
+			/* use original hard-coded values 
 			var conversions = 
 				{
 				"USD": { "USD" : 1.00, "GBP" : 0.72, "EUR" : 0.91 },
@@ -88,13 +98,14 @@ function convert(req, res) {
 			//	console.log(conversionRate);
 
 			// do the math
-			var convertedVal = conversionRate * units;
+			convertedVal = conversionRate * units;
 
 			api_or_hard = "used hard coded values"
-		} // end if-else
+*/
+		} // end if-else for processing request_mod response
 
 		// round the calculation to two decimal places.
-		var convertedVal = Math.round(convertedVal*100) / 100;
+		convertedVal = Math.round(convertedVal*100) / 100;
 
 		// send the results to the browser.
 		res.render('result', {fromSymbol:fromSymbol, dollars:units, toSymbol:toSymbol, converted:convertedVal, api_or_hard:api_or_hard});
