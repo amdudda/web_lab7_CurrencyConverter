@@ -30,6 +30,10 @@ function convert(req, res) {
 	// log the conversion
 	console.log("query was: convert " + convertFrom + " " + units + " to " + convertTo + " (" + symbol + ")");
 
+	// can we fetch my api key?	
+	var apikey = process.env.CURRENCYLAYER_API_KEY;
+	console.log("api key is: " + apikey);	
+	
 	// our conversion rates
 	var conversions = {
 		"Dollars": { "Dollars" : 1.00, "Pounds" : 0.72, "Euros" : 0.91 },
