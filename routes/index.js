@@ -65,7 +65,7 @@ function convert(req, res) {
 				var target = api_conversions["quotes"]["USD" + convertTo];
 				var base = api_conversions["quotes"]["USD" + convertFrom];
 				convertedVal = units * (target/base);
-				api_or_hard = "used the API"
+				api_or_hard = "used the API";
 			}
 			else  {
 				// process error info in JSON data
@@ -76,7 +76,7 @@ function convert(req, res) {
 				res.render('error',{errcode:errcode,errtype:errtype,errtext:errtext});
 			} // end if-else for processing JSON data
 		}
-		else {
+		else if (!error) {
 			// TODO: fall back in a more appropriate fashion - tell the user something
 			// went wrong in the HTML request.
 			if (clresponse) var errcode = clresponse.statusCode;
@@ -85,23 +85,14 @@ function convert(req, res) {
 			var errtext = "Something happened in communications between your computer and the server on the Internet.  You can do a web search on the error code above to find more details about the error.";
 			// and pass this to an error page
 			res.render('error',{errcode:errcode,errtype:errtype,errtext:errtext});
-
-			/* use original hard-coded values 
-			var conversions = 
-				{
-				"USD": { "USD" : 1.00, "GBP" : 0.72, "EUR" : 0.91 },
-				"EUR": { "USD" : 1.10, "GBP" : 0.79, "EUR" : 1.00 },
-				"GBP": { "USD" : 1.40, "GBP" : 1.0, "EUR" : 1.27 }
-				}  // exchange rates approximate; googled these on 2016.02.25
-
-			var conversionRate = conversions[convertFrom][convertTo];
-			//	console.log(conversionRate);
-
-			// do the math
-			convertedVal = conversionRate * units;
-
-			api_or_hard = "used hard coded values"
-*/
+		}
+		else {
+			if (clresponse) var errcode = clresponse.statusCode;
+				else var errcode = "Unable to retrieve error code";
+			var errtype = "Error in program";
+			var errtext = "Something broke in the code.  Nag me at tk0654wm@go.minneapolis.edu to fix it.";
+			// and pass this to an error page
+			res.render('error',{errcode:errcode,errtype:errtype,errtext:errtext});
 		} // end if-else for processing request_mod response
 
 		// round the calculation to two decimal places.
