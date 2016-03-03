@@ -23,23 +23,36 @@ function convert(req, res) {
 	var convertFrom = req.query.fromcurrency;
 	var convertTo = req.query.tocurrency;
 	var symbol;
-	if (convertTo == "Euros") symbol = "€"; 
-		else if (convertTo == "Dollars") symbol = "US$";
+	if (convertTo == "EUR") symbol = "€"; 
+		else if (convertTo == "USD") symbol = "US$";
 		else symbol = "GB₤"; 
 
 	// log the conversion
 	console.log("query was: convert " + convertFrom + " " + units + " to " + convertTo + " (" + symbol + ")");
 
-	// can we fetch my api key?	
+	// fetch my api key
 	var apikey = process.env.CURRENCYLAYER_API_KEY;
-	console.log("api key is: " + apikey);	
 	
-	// our conversion rates
-	var conversions = {
-		"Dollars": { "Dollars" : 1.00, "Pounds" : 0.72, "Euros" : 0.91 },
-		"Euros": { "Dollars" : 1.10, "Pounds" : 0.79, "Euros" : 1.00 },
-		"Pounds": { "Dollars" : 1.40, "Pounds" : 1.0, "Euros" : 1.27 }
+/*	
+	construct our url to fetch conversion rates
+	the values returned will be in the format "USD" plus currency symbol, eg "USDEUR"
+	this will need to be an async call - can't do anything else till we have this data.
+	API documentation is at https://currencylayer.com/documentation
+*/
+	var api_url = "http://apilayer.net/api/live?access_key=f" + apikey +  			"&currencies=USD,EUR,GBP&format=1";  // format 1 specifies JSON
+	// TODO: the api has a call that lets you get all available currencies.
+	// this could be used to generate drop-down boxes.
+	
+	// our conversion rates generated via api call
+	var api_conversions = ""; // how to fetch this??
+/*	original hard-coded values */
+	var conversions = 
+		{
+		"USD": { "USD" : 1.00, "GBP" : 0.72, "EUR" : 0.91 },
+		"EUR": { "USD" : 1.10, "GBP" : 0.79, "EUR" : 1.00 },
+		"GBP": { "USD" : 1.40, "GBP" : 1.0, "EUR" : 1.27 }
 		}  // exchange rates approximate; googled these on 2016.02.25
+
 	var conversionRate = conversions[convertFrom][convertTo];
 	//	console.log(conversionRate);
 
