@@ -9,13 +9,9 @@ block content
 				span.label Convert
 				input(type="text", name="dollaramount")
 				select(name="fromcurrency")
-					option(value="USD") Dollars
-					option(value="EUR") Euros
-					option(value="GBP") Pounds
+					#{currencies_list}
 				span.label to
 				select(name="tocurrency")
-					option(value="USD") Dollars
-					option(value="EUR") Euros
-					option(value="GBP") Pounds
+					#{currencies_list}
 			div(class=button)
 				input(type="submit", value="Convert", class="btn")

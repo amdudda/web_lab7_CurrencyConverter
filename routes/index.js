@@ -6,9 +6,29 @@ var request_mod = require("request");
 router.get('/',homepage);
 
 function homepage(req, res) {
-	//res.send("<html><body><h1>Currency site</h1></body></html>");
-	res.render('index');  // this renders the named view (index.jade)
-}
+	// TODO: the api has a call that lets you get all available currencies.
+	// this could be used to generate massive drop-down boxes.  
+	var api_url = "http://apilayer.net/api/list";	// url for list of currencies
+	var apikey = process.env.CURRENCYLAYER_API_KEY;  // fetch my api key
+	var api_param = { 'access_key':apikey } ;
+
+	request_mod( {uri: api_url, qs: api_param}, function(error,clresponse,body) {
+		if (!error && clresponse.statusCode == 200) {
+			// parse out the currencies and loop through them to create options
+			var my_data = JSON.parse(body);
+			var my_currencies = my_data.currencies;
+			var currency_options = ""
+			for (var currency in my_currencies) {
+				console.log(currency + "... " + my_currencies[currency]);
+				currency_options += "| <option value='" + currency + "'> " + my_currencies[currency] + "</option>\n";
+			}
+			res.render('index',{currencies_list:currency_options});  // this renders the named view (index.jade)
+		}
+		else {
+			// TODO some sort of error occurred, send user to error page
+		}
+	}); // end request callback
+} // end homepage function
 
 /* GET request, for form submit */
 router.get('/convert', convert);
@@ -48,10 +68,8 @@ function convert(req, res) {
 	this will need to be a callback function - can't do anything else till we have this data.
 	API documentation is at https://currencylayer.com/documentation
 */
-	var api_url = "http://apilayer.net/api/live" // ?access_key=" + apikey +  			"&currencies=USD,EUR,GBP&format=1";  // format 1 specifies JSON
-	var api_params = {'access_key': apikey, 'currencies':'USD,EUR,GBP', format:1 }
-	// TODO: the api has a call that lets you get all available currencies.
-	// this could be used to generate massive drop-down boxes.  
+	var api_url = "http://apilayer.net/api/live" 
+	var api_params = {'access_key': apikey, format:1 } // format 1 specifies JSON, formerly 'currencies':'USD,EUR,GBP',
 	var api_or_hard = "";
 	var convertedVal = 0;
 
@@ -77,7 +95,7 @@ function convert(req, res) {
 			} // end if-else for processing JSON data
 		}
 		else if (!error) {
-			// TODO: fall back in a more appropriate fashion - tell the user something
+			// fall back in a more appropriate fashion - tell the user something
 			// went wrong in the HTML request.
 			if (clresponse) var errcode = clresponse.statusCode;
 				else var errcode = "Unable to retrieve error code";
