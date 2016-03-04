@@ -1,11 +1,16 @@
 {
 	"name":"currency",
-	"version":"0.0.0",
+	"version":"0.1.0",
 	"dependencies":{
 		"express":"^4.13.4",
-		"jade":"^1.11.0"
+		"jade":"^1.11.0",
+		"request":"^2.69.0",
+	    "serve-favicon": "~2.3.0"
 	},
-
+	"engines":{
+    "node":"4.2.2",
+    "npm":"2.14.7"
+  },
 	"description":"Simple currency converter",
 	"main":"currency_app.js",
 	"author":"A. M. Dudda"
