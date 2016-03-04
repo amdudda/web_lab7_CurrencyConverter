@@ -1,1 +1,1 @@
-node bin/www
+web: node currency_app.js
