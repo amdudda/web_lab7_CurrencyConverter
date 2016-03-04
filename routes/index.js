@@ -139,7 +139,7 @@ function convert(req, res) {
 		convertedVal = Math.round(convertedVal*100) / 100;
 
 		// send the results to the browser.
-		res.render('result', {fromSymbol:fromSymbol, dollars:units, toSymbol:toSymbol, converted:convertedVal, api_or_hard:api_or_hard});
+		res.render('result', {fromSymbol:fromSymbol, dollars:units, toSymbol:toSymbol, converted:convertedVal});
 	}); // end callback function and close request
 };
 
